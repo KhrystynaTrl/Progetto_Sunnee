@@ -1,19 +1,27 @@
 <?php
+namespace App\config;
+
+use PDO;
+use PDOException;
+
 class Database {
     private $host;
     private $db_name;
     private $username;
     private $password;
-    public $conn;
+    private $conn;
 
     public function __construct(){
-    $this->host = $__ENV["DB_HOST"];
-    $this-> db_name = $__ENV["DB_NAME"];
-    $this->username = $__ENV["USER"];
-    $this->password = $__ENV["PASSWORD"];
+        $this->host = $_ENV["DB_HOST"] ?? null;
+        $this-> db_name = $_ENV["DB_NAME"] ?? null;
+        $this->username = $_ENV["USER"] ?? null;
+        $this->password = $_ENV["PASSWORD"] ?? null;
     }
     
     public function getConnection() {
+        if($this->conn != null){
+            return $this-> conn;
+        }
         $this->conn = null;
         try {
             $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
@@ -24,4 +32,9 @@ class Database {
         return $this->conn;
     }
 }
+$database = new Database();
+
+$container->bind("Database", function()  use($database){
+    return $database->getConnection();
+})
 ?>
