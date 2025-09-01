@@ -14,6 +14,3 @@ quantita int check (quantita > 0) NOT NULL,
 prodotto int NOT NULL, 
 foreign key (prodotto) references prodotto(ID)
 );
-
-
- 

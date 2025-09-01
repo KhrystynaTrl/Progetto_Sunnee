@@ -1,5 +1,5 @@
 <?php
-namespace models;
+namespace App\models;
 
 class Ordine{
     public $ID;

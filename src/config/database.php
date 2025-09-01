@@ -16,15 +16,17 @@ class Database {
         $this-> db_name = $_ENV["DB_NAME"] ?? null;
         $this->username = $_ENV["USER"] ?? null;
         $this->password = $_ENV["PASSWORD"] ?? null;
+        $this->conn = null;
     }
     
     public function getConnection() {
         if($this->conn != null){
             return $this-> conn;
         }
-        $this->conn = null;
+       
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            echo $this->username." ".$this->password;
+            $this->conn = new PDO("mysql:host=" . $this->host . ";port=3307;dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->exec("set names utf8");
         } catch(PDOException $exception) {
             echo "Errore di connessione: " . $exception->getMessage();
@@ -34,7 +36,6 @@ class Database {
 }
 $database = new Database();
 
-$container->bind("Database", function()  use($database){
+$container->bind("PDO", function()  use($database){
     return $database->getConnection();
-})
-?>
+});

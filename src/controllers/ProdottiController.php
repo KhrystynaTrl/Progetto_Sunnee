@@ -1,0 +1,29 @@
+<?php
+
+namespace App\controllers;
+
+class ProdottiController {
+
+    private $container;
+
+    public function __construct($container){
+        $this->container = $container;
+    }
+
+    public function handle() {
+        $method = $_SERVER["REQUEST_METHOD"];
+        echo $method;
+        switch($method){
+            case "POST" : require __DIR__."/../repositories/prodotti/create.php";
+            break;
+            case "DELETE" : require __DIR__."/../repositories/prodotti/delete.php";
+            break;
+            case "PUT" : require __DIR__ ."/../repositories/prodotti/update.php";
+            break;
+
+
+        }
+        
+
+    }
+}
