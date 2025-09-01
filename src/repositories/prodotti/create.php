@@ -28,4 +28,5 @@ if(!empty($data->nome) && !empty($data->kg_riciclati)){
 } else {
     http_response_code(400);
     echo json_encode(array("message" => "Impossibile creare il prodotto, dati incompleti."));
-}
+};
+

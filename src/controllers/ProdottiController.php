@@ -12,7 +12,6 @@ class ProdottiController {
 
     public function handle() {
         $method = $_SERVER["REQUEST_METHOD"];
-        echo $method;
         switch($method){
             case "POST" : require __DIR__."/../repositories/prodotti/create.php";
             break;

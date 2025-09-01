@@ -10,6 +10,11 @@ class Router {
         $this->routes[$route] = $callback;
     }
     public function dispatch($url){ 
+        if(str_contains($url,"/")){
+            $url = explode("/", $url)[0];
+        }elseif(str_contains($url,"?")){
+            $url = explode("?", $url)[0];
+        };
         if(array_key_exists($url, $this ->routes)){
             $controller = $this ->routes[$url];
             $controller->handle();
