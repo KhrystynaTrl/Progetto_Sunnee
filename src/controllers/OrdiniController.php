@@ -19,10 +19,9 @@ class OrdiniController {
             break;
             case "PUT" : require __DIR__ ."/../repositories/ordini/update.php";
             break;
-
-
+            case "GET" : require __DIR__ . "/../repositories/ordini/read.php";
+            break;
         }
-        
-
+    
     }
 }

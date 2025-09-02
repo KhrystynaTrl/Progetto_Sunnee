@@ -19,7 +19,7 @@ $prodotto->ID = $data->ID;
 
 if($prodotto->update()){
     http_response_code(200);
-    echo json_encode(array("risposta" => "Prodotto agguirnato"));
+    echo json_encode(array("risposta" => "Prodotto aggiornato"));
 }else{
     http_response_code(503);
     echo json_encode(array("risposta" => "Impossibile aggiornare il prodotto"));

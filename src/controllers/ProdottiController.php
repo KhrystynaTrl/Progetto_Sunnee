@@ -19,10 +19,9 @@ class ProdottiController {
             break;
             case "PUT" : require __DIR__ ."/../repositories/prodotti/update.php";
             break;
-
-
+            case "GET" : require __DIR__ . "/../repositories/prodotti/read.php";
+            break;
         }
         
-
     }
 }

@@ -14,9 +14,8 @@ public function __construct($db){
 }
 
  function read() {
-            $query = "SELECT data_di_vendita, prodotto, quantita FROM " . $this->table_name . "WHERE ID = ?";
+            $query = "SELECT data_di_vendita, prodotto, quantita FROM " . $this->table_name;
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(1, $this->ID);
             $stmt->execute();
 
             return $stmt;
