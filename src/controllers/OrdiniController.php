@@ -13,7 +13,14 @@ class OrdiniController {
     public function handle() {
         $method = $_SERVER["REQUEST_METHOD"];
         switch($method){
-            case "POST" : require __DIR__."/../repositories/ordini/create.php";
+            case "POST" : 
+                $uri = trim($_SERVER['REQUEST_URI'], '/');
+                $secondPart = explode("/",$uri)[1] ?? null;
+                if($secondPart && $secondPart === "ricerca"){
+                    require __DIR__ . "/../repositories/ordini/search.php";
+                } else {
+                    require __DIR__."/../repositories/ordini/create.php";
+                }
             break;
             case "DELETE" : require __DIR__."/../repositories/ordini/delete.php";
             break;
