@@ -15,16 +15,16 @@ src/
 │   ├── container.php         # Dependency Injection Container
 │   └── database.php          # Configurazione e connessione PDO a MySQL
 ├── controllers/
-│   ├── OrdiniController.php  # Gestione richieste per ordini
-│   └── ProdottiController.php# Gestione richieste per prodotti
+│   ├── OrderController.php   # Gestione richieste per ordini
+│   └── ProductController.php # Gestione richieste per prodotti
 ├── core/
+│   ├── bootstrap.php         # Gestione operazioni iniziali e inizializzazione container DI
+│   ├── Request.php           # Classe di utilità per prendere i dati della request
+│   ├── Response.php          # Classe di utilità per inviare i dati della response
 │   └── Router.php            # Routing delle richieste HTTP
 ├── models/
-│   ├── ordine.php            # Modello Ordine, operazioni CRUD + ricerca
-│   └── prodotto.php          # Modello Prodotto, operazioni CRUD
-├── repositories/
-│   ├── ordini/               # CRUD e ricerca ordini
-│   └── prodotti/             # CRUD prodotti
+│   ├── order.php             # Modello Ordine, operazioni CRUD + ricerca
+│   └── product.php           # Modello Prodotto, operazioni CRUD
 ├── routes/
 │   └── web.php               # Definizione delle route
 └── index.php                 # Entry point principale
@@ -38,18 +38,18 @@ src/
 CREATE DATABASE Sunnee;
 USE Sunnee;
 
-CREATE TABLE IF NOT EXISTS prodotto(
+CREATE TABLE IF NOT EXISTS Product(
 ID INT auto_increment PRIMARY KEY,
-nome VARCHAR(25) NOT NULL UNIQUE,
-kg_riciclati FLOAT(2) NOT NULL
+`name` varchar(25) NOT NULL UNIQUE,
+kg_recycled float(2) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS ordine(
+CREATE TABLE IF NOT EXISTS `Order`(
 ID INT auto_increment PRIMARY KEY,
-data_di_vendita DATE DEFAULT (now()),
-quantita INT CHECK (quantita > 0) NOT NULL,
-prodotto INT NOT NULL,
-FOREIGN KEY (prodotto) REFERENCES prodotto(ID)
+date_of_sale date DEFAULT (now()),
+quantity int check (quantity > 0) NOT NULL,
+product int NOT NULL,
+foreign key (product) references Product(ID)
 );
 ```
 
@@ -65,19 +65,20 @@ Questa scelta riflette il funzionamento reale dell’applicazione: ogni volta ch
 
 **Note:**
 
-- `prodotto.nome` è un campo univoco, utile per le ricerche e per evitare duplicati.
-- `kg_riciclati` tiene traccia del materiale riciclato per prodotto.
-- `ordine.data_di_vendita` è valorizzato di default con la data corrente.
-- `quantita` deve essere sempre positiva (CHECK).
-- La relazione tra ordine e prodotto è gestita tramite chiave esterna (`prodotto`).
+- `product.name` è un campo univoco, utile per le ricerche e per evitare duplicati.
+- `kg_recycled` tiene traccia del materiale riciclato per prodotto.
+- `order.date_of_sale` è valorizzato di default con la data corrente.
+- `quantity` deve essere sempre positiva (CHECK).
+- La relazione tra ordine e prodotto è gestita tramite chiave esterna (`product`).
 
 ## Funzionamento generale
 
 - **index.php**: entry point; carica le variabili d’ambiente, la configurazione, il router e le route, poi effettua il dispatch della richiesta HTTP.
-- **Router**: mappa URL come `/prodotto` e `/ordine` ai rispettivi controller.
-- **Controllers**: in base al metodo HTTP, instradano la richiesta al repository corretto (ad esempio: creazione, lettura, aggiornamento, eliminazione, ricerca).
-- **Repositories**: gestiscono la logica di accesso ai dati tramite i modelli e restituiscono risposte JSON.
-- **Modelli**: interagiscono direttamente con il database, gestendo le entità prodotto e ordine.
+- **Router**: mappa URL come `/product` e `/order` ai rispettivi controller.
+- **Response&Request**: gestiscono le richieste e le risposte http.
+- **Container**: gestisce la dependency injection all'interno dell'applicazione.
+- **Controllers**: in base al metodo HTTP, instradano la richiesta al model corretto (ad esempio: creazione, lettura, aggiornamento, eliminazione, ricerca).
+- **Models**: interagiscono direttamente con il database, gestendo le entità prodotto e ordine.
 
 ---
 
@@ -85,22 +86,22 @@ Questa scelta riflette il funzionamento reale dell’applicazione: ogni volta ch
 
 ### Prodotti
 
-| Metodo | Endpoint             | Descrizione       | Payload richiesto/parametro                         |
-| ------ | -------------------- | ----------------- | --------------------------------------------------- |
-| GET    | `/prodotto`          | Lista prodotti    | -                                                   |
-| POST   | `/prodotto`          | Crea prodotto     | `{ "nome": "...", "kg_riciclati": ... }`            |
-| PUT    | `/prodotto`          | Aggiorna prodotto | `{ "ID": ..., "nome": "...", "kg_riciclati": ... }` |
-| DELETE | `/prodotto?nome=...` | Elimina prodotto  | Parametro `nome` in query string                    |
+| Metodo | Endpoint            | Descrizione       | Payload richiesto/parametro                        |
+| ------ | ------------------- | ----------------- | -------------------------------------------------- |
+| GET    | `/product`          | Lista prodotti    | -                                                  |
+| POST   | `/product`          | Crea prodotto     | `{ "name": "...", "kg_recycled": ... }`            |
+| PUT    | `/product`          | Aggiorna prodotto | `{ "ID": ..., "name": "...", "kg_recycled": ... }` |
+| DELETE | `/product?name=...` | Elimina prodotto  | Parametro `name` in query string                   |
 
 ### Ordini
 
-| Metodo | Endpoint          | Descrizione       | Payload richiesto/parametro                                               |
-| ------ | ----------------- | ----------------- | ------------------------------------------------------------------------- |
-| GET    | `/ordine`         | Lista ordini      | -                                                                         |
-| POST   | `/ordine`         | Crea ordine       | `{ "prodotto": "...", "quantita": ..."data_di_vendita":"gg/mm/aaaa" }`    |
-| PUT    | `/ordine`         | Aggiorna ordine   | `{ "ID": ..., "prodotto": "...", "quantita": ... }`                       |
-| DELETE | `/ordine?ID=...`  | Elimina ordine    | Parametro `ID` in query string                                            |
-| POST   | `/ordine/ricerca` | Ricerca aggregata | `{ "dataFrom": "gg/mm/aaaa", "dataTo": "gg/mm/aaaa", "prodotto": "..." }` |
+| Metodo | Endpoint        | Descrizione       | Payload richiesto/parametro                                              |
+| ------ | --------------- | ----------------- | ------------------------------------------------------------------------ |
+| GET    | `/order`        | Lista ordini      | -                                                                        |
+| POST   | `/order`        | Crea ordine       | `{ "product": "...", "quantity": ..."date_of_Sale":"gg/mm/aaaa" }`       |
+| PUT    | `/order`        | Aggiorna ordine   | `{ "ID": ..., "product": "...", "quantity": ... }`                       |
+| DELETE | `/order?id=...` | Elimina ordine    | Parametro `id` in query string                                           |
+| POST   | `/order/search` | Ricerca aggregata | `{ "dateFrom": "gg/mm/aaaa", "fateTo": "gg/mm/aaaa", "product": "..." }` |
 
 ---
 
@@ -109,56 +110,54 @@ Questa scelta riflette il funzionamento reale dell’applicazione: ogni volta ch
 ### Creazione prodotto (costume da bagno donna)
 
 ```json
-POST /prodotto
+POST /product
 {
-  "nome": "costume_donna_active",
-  "kg_riciclati": 1.3
+  "name": "beachware for woman",
+  "kg_recycled": 1.3
 }
 ```
 
 ### Creazione prodotto (costume da bagno uomo)
 
 ```json
-POST /prodotto
+POST /product
 {
-  "nome": "costume_uomo_active",
-  "kg_riciclati": 1.0
+  "name": "beachware for men",
+  "kg_recycled": 1.0
 }
 ```
 
 ### Creazione ordine
 
 ```json
-POST /ordine
+POST /order
 {
-  "prodotto": "costume_donna_active",
+  "product": "beachware for woman",
   "quantita": 5,
-  "data_di_vendita": "01/09/2025"
+  "date_of_sale": "01/09/2025"
 }
 ```
 
 ### Ricerca aggregata ordini
 
 ```json
-POST /ordine/ricerca
+POST /order/search
 {
-  "dataFrom": "01/01/2025",
-  "dataTo": "01/09/2025",
-  "prodotto": "costume_donna_active"
+  "dateFrom": "01/01/2025",
+  "dateTo": "01/09/2025",
+  "product": "beachware for woman"
 }
 ```
 
 ### Risposta per lista prodotti
 
 ```json
-{
-  "records": [
-    {
-      "nome": "costume_donna_active",
-      "kg_riciclati": 2.5
-    }
-  ]
-}
+[
+  {
+    "name": "beachware for woman",
+    "kg_recycled": 2.5
+  }
+]
 ```
 
 ---
@@ -188,7 +187,7 @@ POST /ordine/ricerca
    ```bash
    php -S localhost:8000 -t src/index.php
    ```
-6. Le API saranno accessibili su `http://localhost:8000/prodotto` e `http://localhost:8000/ordine`.
+6. Le API saranno accessibili su `http://localhost:8000/product` e `http://localhost:8000/order`.
 
 ---
 
