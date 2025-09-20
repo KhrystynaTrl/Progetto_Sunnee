@@ -34,8 +34,4 @@ class Database {
         return $this->conn;
     }
 }
-$database = new Database();
 
-$container->bind("PDO", function()  use($database){
-    return $database->getConnection();
-});
