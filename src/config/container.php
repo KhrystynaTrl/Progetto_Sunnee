@@ -4,6 +4,16 @@ namespace App\config;
 use Exception;
 class Container { 
     protected $bindings = [];
+    private static $instance;
+
+    private function __construct(){}
+
+    public static function getInstance() {
+        if (!self::$instance) {
+            self::$instance = new static();
+        }
+        return self::$instance;
+    }
     public function bind($abstract, $concrete) {
         $this->bindings[$abstract] = $concrete;
     }
@@ -16,7 +26,3 @@ class Container {
         return call_user_func($this->bindings[$abstract],$this);
     }
 }
-
-
-$container = new Container();
-?>
